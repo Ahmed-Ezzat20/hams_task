@@ -1,9 +1,9 @@
 [project]
 name = "hams"
 version = "0.1.0"
-description = "Add your description here"
+description = "Arabic End-of-Utterance (EOU) Detection Dataset Generator"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "google-generativeai>=0.3.0",
     "jsonschema>=4.0.0",
@@ -11,4 +11,10 @@ dependencies = [
     "openai>=2.9.0",
     "pandas>=1.5.0",
     "python-dotenv>=0.20.0",
+    "pyyaml>=6.0",
 ]
+
+[project.scripts]
+hams-generate = "hams.cli.generate:main"
+hams-asr-augment = "hams.cli.asr_augment:main"
+hams-build = "hams.cli.build_dataset:main"

@@ -1,0 +1,81 @@
+prompts:
+  - id: restaurant_reservation
+    domain: restaurant
+    description: Customer making a dinner reservation with dietary requirements
+    scenario: |
+      Customer wants to make a dinner reservation.
+      Restaurant is busy but has availability.
+      Customer has special dietary requirements.
+      Include natural hesitations and filler words.
+
+  - id: bank_inquiry
+    domain: banking
+    description: Customer inquiring about account balance and transactions
+    scenario: |
+      Customer calls to inquire about account balance and recent transactions.
+      Customer has a question about a specific charge.
+      Bank representative is helpful and professional.
+
+  - id: hotel_booking
+    domain: hospitality
+    description: Traveler booking a hotel room with special requests
+    scenario: |
+      Traveler wants to book a room for 3 nights.
+      Hotel has availability but with some constraints.
+      Traveler has special requests.
+
+  - id: medical_appointment
+    domain: healthcare
+    description: Patient scheduling a doctor's appointment
+    scenario: |
+      Patient calls to schedule a doctor's appointment.
+      Patient describes symptoms briefly.
+      Receptionist schedules appointment and provides instructions.
+
+  - id: friends_catching_up
+    domain: social
+    description: Two friends catching up after months
+    scenario: |
+      Friends haven't seen each other in months.
+      They discuss recent life events.
+      Casual and friendly atmosphere with excitement.
+
+  - id: family_dinner
+    domain: social
+    description: Family members discussing daily events at dinner
+    scenario: |
+      Family gathered for dinner.
+      Discussing daily events and plans.
+      Multiple family members participating.
+
+  - id: market_shopping
+    domain: retail
+    description: Customer browsing and negotiating at a traditional market
+    scenario: |
+      Customer browsing products at a traditional market.
+      Vendor trying to make a sale.
+      Price negotiation expected.
+
+  - id: car_rental
+    domain: transportation
+    description: Customer renting a car for a trip
+    scenario: |
+      Customer wants to rent a car for a trip.
+      Discussion of car types, insurance, and pricing.
+      Agent provides options and recommendations.
+
+  - id: job_interview
+    domain: professional
+    description: Professional job interview
+    scenario: |
+      Professional job interview setting.
+      Candidate applying for a position.
+      Interviewer assessing qualifications.
+
+  - id: restaurant_order
+    domain: restaurant
+    description: Customer ordering food at a restaurant
+    scenario: |
+      Customer ordering food at a restaurant.
+      Server provides recommendations.
+      Discussion of menu items and preferences.
