@@ -70,7 +70,7 @@ class ConversationGenerator:
                     messages=[
                         {
                             "role": "system",
-                            "content": "You generate Arabic conversations. Output ONLY JSON, no markdown."
+                            "content": "You generate Arabic conversations in Saudi Najdi Dialect. Output ONLY JSON, no markdown."
                         },
                         {
                             "role": "user",
