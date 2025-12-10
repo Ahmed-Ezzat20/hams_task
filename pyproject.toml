@@ -1,3 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["hams*"]
+exclude = ["data*", "datasets*", "logs*", "*.egg-info"]
+
 [project]
 name = "hams"
 version = "0.1.0"
