@@ -37,6 +37,10 @@ if sys.platform == 'win32':
 # Configure logging with UTF-8 encoding
 def setup_logging(log_file: str = 'arabic_eou_generation.log'):
     """Setup logging configuration."""
+    # Create log directory if it doesn't exist
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
