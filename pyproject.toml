@@ -18,3 +18,4 @@ dependencies = [
 hams-generate = "hams.cli.generate:main"
 hams-asr-augment = "hams.cli.asr_augment:main"
 hams-build = "hams.cli.build_dataset:main"
+hams-finalize = "hams.cli.finalize:main"
