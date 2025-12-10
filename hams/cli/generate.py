@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from typing import List
 
-from ..core.prompt_builder_v2 import EOUAwarePromptBuilder
+from ..core.prompt_builder import EOUAwarePromptBuilder
 from ..core.generator import ConversationGenerator, GenerationError
 from ..core.postprocessor import PostProcessor
 from ..core.writer import DatasetWriter

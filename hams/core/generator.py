@@ -8,7 +8,7 @@ import json
 import time
 from typing import Dict, Any, Optional
 from openai import OpenAI
-from .prompt_builder_v2 import EOUAwarePromptBuilder
+from .prompt_builder import EOUAwarePromptBuilder
 
 
 class GenerationError(Exception):
