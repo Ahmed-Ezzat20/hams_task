@@ -8,6 +8,7 @@ import json
 import time
 from typing import Dict, Any, Optional
 from openai import OpenAI
+from .prompt_builder_v2 import EOUAwarePromptBuilder
 
 
 class GenerationError(Exception):
@@ -34,6 +35,8 @@ class ConversationGenerator:
         """
         self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.model_name = model_name
+        self.prompt_builder = EOUAwarePromptBuilder()
+        self.system_message = self.prompt_builder.get_system_message()
     
     def generate(
         self,
@@ -70,7 +73,7 @@ class ConversationGenerator:
                     messages=[
                         {
                             "role": "system",
-                            "content": "You generate Arabic conversations. Output ONLY JSON, no markdown."
+                            "content": self.system_message
                         },
                         {
                             "role": "user",

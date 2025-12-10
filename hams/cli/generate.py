@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from typing import List
 
-from ..core.prompt_builder import PromptBuilder
+from ..core.prompt_builder_v2 import EOUAwarePromptBuilder
 from ..core.generator import ConversationGenerator, GenerationError
 from ..core.postprocessor import PostProcessor
 from ..core.writer import DatasetWriter
@@ -96,15 +96,17 @@ def main():
     try:
         # Initialize components
         logger.info("Initializing components...")
-        prompt_builder = PromptBuilder()
+        prompt_builder = EOUAwarePromptBuilder()
         generator = ConversationGenerator(api_key=api_key, model_name=args.model)
         postprocessor = PostProcessor()
         writer = DatasetWriter(args.output_file)
         
         # Build prompts
         logger.info(f"Building prompts (style={args.style}, domains={args.domains})...")
-        prompts = prompt_builder.get_all_prompts(
+        prompts = prompt_builder.get_all_eou_aware_prompts(
             style=args.style,
+            num_turns=10,
+            target_non_eou_ratio=0.4,
             domains=args.domains
         )
         
