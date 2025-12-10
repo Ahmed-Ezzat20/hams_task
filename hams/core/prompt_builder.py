@@ -78,15 +78,22 @@ Assign:
 - **1 (EOU)** → message is complete
 - **0 (Not EOU)** → trailing, incomplete, suggests more to come
 
-Examples:
-- "طيب متى يوصل الطلب؟" → 1 (complete question)
-- "كنت بقولك شي بس" → 0 (trailing, incomplete)
-- "هاليومين بوصل المستندات لكم" → 1 (complete statement)
-- "يعني أنا أقصد" → 0 (mid-thought, no punctuation)
-- "هل تقدر تساعدني؟" → 1 (complete)
-- "بس المشكلة إن" → 0 (incomplete, suggests more)
-- "شكراً على المساعدة" → 1 (complete)
-- "أنا كنت بفهمك نقطة بس" → 0 (trailing conjunction)  
+Examples of EOU (label=1):
+- "طيب متى يوصل الطلب؟" → complete question
+- "هاليومين بوصل المستندات لكم" → complete statement
+- "هل تقدر تساعدني؟" → complete request
+- "شكراً على المساعدة" → complete gratitude
+- "أنا موافق على الشروط" → complete agreement
+
+Examples of Non-EOU (label=0) - DIVERSE PATTERNS:
+- "طيب، بس لازم نتفق أول" → complete middle sentence
+- "بس انت ما قلت لي متى نبدأ" → statement needing response
+- "يعني أنا أقصد" → mid-thought filler
+- "هل تقدر تشوف" → incomplete question
+- "أنا كنت بقولك" → trailing verb phrase
+- "المشكلة إن الموعد" → incomplete explanation
+- "خلاص فهمت، بس" → trailing conjunction
+- "لو سمحت ممكن" → incomplete request  
 
 ---
 
