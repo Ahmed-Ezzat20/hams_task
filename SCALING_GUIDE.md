@@ -32,12 +32,11 @@ Use the automated batch generation script to create the full dataset. This scrip
 ### **Commands:**
 
 ```bash
-# Set your API key
-export NEBIUS_API_KEY="your-nebius-api-key"
-
 # Run the automated batch generation script
-cd C:\Work\hams
-./generate_production_dataset.sh
+python generate_production_dataset.py --total-samples 5000 --samples-per-batch 500
+
+# Or for 10,000 samples:
+python generate_production_dataset.py --total-samples 10000 --samples-per-batch 1000
 ```
 
 ---
