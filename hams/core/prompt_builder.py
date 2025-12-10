@@ -132,7 +132,57 @@ Output ONLY the CSV-like lines — nothing else."""
         """
         Initialize the EOU-aware prompt builder.
         """
-        pass
+        # Hardcoded templates for common Saudi Arabic conversation domains
+        self.templates = [
+            PromptTemplate(
+                id="restaurant",
+                domain="restaurant",
+                description="Restaurant reservations and food ordering",
+                scenario="Customer making reservations, ordering food, or asking about menu items"
+            ),
+            PromptTemplate(
+                id="banking",
+                domain="banking",
+                description="Banking inquiries and transactions",
+                scenario="Customer inquiring about account balance, transactions, or services"
+            ),
+            PromptTemplate(
+                id="hospitality",
+                domain="hospitality",
+                description="Hotel bookings and travel arrangements",
+                scenario="Traveler booking rooms, asking about amenities, or making special requests"
+            ),
+            PromptTemplate(
+                id="healthcare",
+                domain="healthcare",
+                description="Medical appointments and health inquiries",
+                scenario="Patient scheduling appointments, describing symptoms, or asking health questions"
+            ),
+            PromptTemplate(
+                id="social",
+                domain="social",
+                description="Social conversations between friends and family",
+                scenario="Friends or family discussing daily life, plans, or catching up"
+            ),
+            PromptTemplate(
+                id="retail",
+                domain="retail",
+                description="Shopping and retail transactions",
+                scenario="Customer browsing products, negotiating prices, or making purchases"
+            ),
+            PromptTemplate(
+                id="transportation",
+                domain="transportation",
+                description="Transportation and travel services",
+                scenario="Customer renting cars, booking rides, or asking about travel options"
+            ),
+            PromptTemplate(
+                id="professional",
+                domain="professional",
+                description="Professional and work-related conversations",
+                scenario="Job interviews, work discussions, or professional inquiries"
+            )
+        ]
 
     def build_csv_prompt(
         self, template: PromptTemplate, target_samples: int = 50
