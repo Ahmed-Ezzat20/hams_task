@@ -4,7 +4,6 @@ CSV-Based Prompt Builder Module
 Uses streamlined prompting to generate CSV format data directly.
 """
 
-import yaml
 from pathlib import Path
 from typing import List, Optional
 from dataclasses import dataclass
@@ -129,36 +128,11 @@ Examples of Non-EOU (label=0) - DIVERSE PATTERNS:
 Begin generating a large batch of **new**, **diverse**, **high-quality** samples.  
 Output ONLY the CSV-like lines — nothing else."""
 
-    def __init__(self, prompts_file: Optional[str] = None):
+    def __init__(self):
         """
         Initialize the EOU-aware prompt builder.
-
-        Args:
-            prompts_file: Path to YAML file containing prompts.
-                         If None, uses default prompts.yaml in package.
         """
-        if prompts_file is None:
-            prompts_file = Path(__file__).parent.parent / "prompts.yaml"
-
-        self.prompts_file = Path(prompts_file)
-        self.templates = self._load_templates()
-
-    def _load_templates(self) -> List[PromptTemplate]:
-        """Load prompt templates from YAML file."""
-        with open(self.prompts_file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-
-        templates = []
-        for prompt_data in data.get("prompts", []):
-            template = PromptTemplate(
-                id=prompt_data["id"],
-                domain=prompt_data["domain"],
-                description=prompt_data["description"],
-                scenario=prompt_data["scenario"],
-            )
-            templates.append(template)
-
-        return templates
+        pass
 
     def build_csv_prompt(
         self, template: PromptTemplate, target_samples: int = 50
