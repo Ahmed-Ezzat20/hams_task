@@ -40,7 +40,9 @@ Where:
 
 **Important rules for formatting:**
 - Do NOT use commas in the utterance.
-- If needed, replace commas with: `—` `؛` `…` `-`
+- If needed, replace commas with: `—` `؛` `-`
+- **CRITICAL: Do NOT use `…` or `...` to mark incomplete utterances.**
+- Non-EOU utterances should be semantically incomplete WITHOUT punctuation hints.
 - Output ONLY the CSV lines. No explanations.
 
 ---
@@ -77,11 +79,22 @@ Assign:
 - **1 (EOU)** → message is complete
 - **0 (Not EOU)** → trailing, incomplete, suggests more to come
 
-Examples:
-- "طيب متى يوصل الطلب؟" → 1  
-- "كنت بقولك شي بس…" → 0  
-- "هاليومين بوصل المستندات لكم" → 1  
-- "ترى كنت بفهمك نقطه بس لسه…" → 0  
+Examples of EOU (label=1):
+- "طيب متى يوصل الطلب؟" → complete question
+- "هاليومين بوصل المستندات لكم" → complete statement
+- "هل تقدر تساعدني؟" → complete request
+- "شكراً على المساعدة" → complete gratitude
+- "أنا موافق على الشروط" → complete agreement
+
+Examples of Non-EOU (label=0) - DIVERSE PATTERNS:
+- "طيب، بس لازم نتفق أول" → complete middle sentence
+- "بس انت ما قلت لي متى نبدأ" → statement needing response
+- "يعني أنا أقصد" → mid-thought filler
+- "هل تقدر تشوف" → incomplete question
+- "أنا كنت بقولك" → trailing verb phrase
+- "المشكلة إن الموعد" → incomplete explanation
+- "خلاص فهمت، بس" → trailing conjunction
+- "لو سمحت ممكن" → incomplete request  
 
 ---
 
@@ -100,11 +113,15 @@ Examples:
 # 5. OUTPUT EXAMPLE (STRUCTURE REFERENCE ONLY — DO NOT REPEAT)
 
 وش وضع الاجتماع اليوم؟,informal,1  
-لحظه بخليك مع المدير… ,formal,0  
+لحظه بخليك مع المدير,formal,0  
 تقدر تتأكد من الطلبيه لو سمحت؟,formal,1  
-انا كنت افكر نروح بكرا… ,informal,0  
+انا كنت افكر نروح بكرا,informal,0  
 ابي اعرف ليه الطلب تاخر مره,asr_like,1  
-كنت بسأل عن عرض الانترنت الجديد… ,asr_like,0  
+كنت بسأل عن عرض الانترنت الجديد,asr_like,0  
+يعني أنا كنت بقول,informal,0  
+هل في مشكلة بالخدمة؟,formal,1  
+بس المشكلة إن,asr_like,0  
+شكرا على المساعده,informal,1  
 
 ---
 
