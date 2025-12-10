@@ -1,52 +1,69 @@
 """
-CLI command for generating conversations.
+Generate CLI Command
+
+Generates EOU samples in CSV format.
 """
 
-import os
-import sys
 import argparse
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import List
 
 from ..core.prompt_builder import EOUAwarePromptBuilder
 from ..core.generator import ConversationGenerator, GenerationError
-from ..core.postprocessor import PostProcessor
-from ..core.writer import DatasetWriter
+from ..core.csv_writer import CSVWriter
 
 
-logger = logging.getLogger(__name__)
+def setup_logging(log_file: str = 'generation.log'):
+    """Setup logging configuration."""
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
 
 
 def main():
-    """Main entry point for hams-generate command."""
+    """Main entry point for generate command."""
     parser = argparse.ArgumentParser(
-        description='Generate Arabic EOU conversations'
+        description='Generate Arabic EOU samples in CSV format'
     )
     parser.add_argument(
-        '--num-conversations',
+        '--num-samples',
         type=int,
-        required=True,
-        help='Number of conversations to generate'
+        default=100,
+        help='Number of samples to generate (default: 100)'
     )
     parser.add_argument(
         '--output-file',
         type=str,
-        required=True,
-        help='Output JSONL file path'
+        default='data/eou_samples.csv',
+        help='Output CSV file path (default: data/eou_samples.csv)'
     )
     parser.add_argument(
-        '--style',
-        type=str,
-        choices=['clean', 'asr_like'],
-        default='clean',
-        help='Output style: clean or asr_like (default: clean)'
+        '--samples-per-call',
+        type=int,
+        default=50,
+        help='Number of samples to request per API call (default: 50)'
     )
     parser.add_argument(
-        '--domains',
+        '--log-file',
         type=str,
-        nargs='+',
-        help='Specific domains to generate (default: all)'
+        default='logs/generation.log',
+        help='Log file path (default: logs/generation.log)'
+    )
+    parser.add_argument(
+        '--model',
+        type=str,
+        default='Qwen/Qwen3-235B-A22B-Instruct-2507',
+        help='Model name to use (default: Qwen/Qwen3-235B-A22B-Instruct-2507)'
     )
     parser.add_argument(
         '--temperature',
@@ -54,123 +71,47 @@ def main():
         default=0.7,
         help='Sampling temperature (default: 0.7)'
     )
-    parser.add_argument(
-        '--delay',
-        type=float,
-        default=0.5,
-        help='Delay between API requests in seconds (default: 0.5)'
-    )
-    parser.add_argument(
-        '--api-key',
-        type=str,
-        help='Nebius API key (default: NEBIUS_API_KEY env var)'
-    )
-    parser.add_argument(
-        '--model',
-        type=str,
-        default='Qwen/Qwen3-235B-A22B-Instruct-2507',
-        help='Model name (default: Qwen/Qwen3-235B-A22B-Instruct-2507)'
-    )
-    parser.add_argument(
-        '--log-level',
-        type=str,
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-        default='INFO',
-        help='Logging level (default: INFO)'
-    )
     
     args = parser.parse_args()
     
     # Setup logging
-    logging.basicConfig(
-        level=getattr(logging, args.log_level),
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    setup_logging(args.log_file)
     
     # Get API key
-    api_key = args.api_key or os.getenv('NEBIUS_API_KEY')
+    api_key = os.getenv('NEBIUS_API_KEY')
     if not api_key:
-        logger.error("API key not provided. Set NEBIUS_API_KEY environment variable or use --api-key")
+        logging.error("NEBIUS_API_KEY environment variable not set")
         sys.exit(1)
     
     try:
-        # Initialize components
-        logger.info("Initializing components...")
-        prompt_builder = EOUAwarePromptBuilder()
-        generator = ConversationGenerator(api_key=api_key, model_name=args.model)
-        postprocessor = PostProcessor()
-        writer = DatasetWriter(args.output_file)
-        
-        # Build prompts
-        logger.info(f"Building prompts (style={args.style}, domains={args.domains})...")
-        prompts = prompt_builder.get_all_eou_aware_prompts(
-            style=args.style,
-            num_turns=10,
-            target_non_eou_ratio=0.4,
-            domains=args.domains
+        # Initialize generator
+        generator = ConversationGenerator(
+            api_key=api_key,
+            model_name=args.model,
+            temperature=args.temperature
         )
         
-        if not prompts:
-            logger.error("No prompts available")
-            sys.exit(1)
+        # Generate samples
+        logging.info(f"Generating {args.num_samples} samples...")
+        samples = generator.generate_batch(
+            num_samples=args.num_samples,
+            samples_per_call=args.samples_per_call
+        )
         
-        # Cycle through prompts to reach target number
-        num_cycles = (args.num_conversations + len(prompts) - 1) // len(prompts)
-        all_prompts = (prompts * num_cycles)[:args.num_conversations]
+        # Write to CSV
+        CSVWriter.write_samples(samples, args.output_file, mode='w')
         
-        logger.info(f"Generating {args.num_conversations} conversations...")
-        logger.info(f"Using {len(prompts)} unique prompts, {num_cycles} cycle(s)")
+        # Print statistics
+        CSVWriter.print_statistics(samples)
         
-        # Generate conversations
-        conversations = []
-        failed = 0
+        logging.info(f"Successfully generated {len(samples)} samples")
+        logging.info(f"Output saved to: {args.output_file}")
         
-        for idx, prompt in enumerate(all_prompts, 1):
-            logger.info(f"Generating conversation {idx}/{len(all_prompts)}...")
-            
-            try:
-                # Generate
-                raw_json = generator.generate(
-                    prompt=prompt,
-                    temperature=args.temperature
-                )
-                
-                # Normalize
-                conversation = postprocessor.normalize(raw_json)
-                conversations.append(conversation)
-                
-                logger.info(f"Success: {conversation.conversation_id} ({len(conversation.turns)} turns)")
-                
-                # Write incrementally
-                if idx % 10 == 0:
-                    writer.write_conversations(conversations, append=(idx > 10))
-                    conversations = []
-                
-            except (GenerationError, ValueError) as e:
-                logger.warning(f"Failed: {str(e)}")
-                failed += 1
-                continue
-            
-            # Delay between requests
-            if idx < len(all_prompts):
-                import time
-                time.sleep(args.delay)
-        
-        # Write remaining conversations
-        if conversations:
-            writer.write_conversations(conversations, append=True)
-        
-        # Statistics
-        stats = writer.get_statistics()
-        logger.info("\n=== Generation Complete ===")
-        logger.info(f"Total conversations: {stats['total_conversations']}")
-        logger.info(f"Failed: {failed}")
-        logger.info(f"Total turns: {stats['total_turns']}")
-        logger.info(f"Avg turns/conversation: {stats['avg_turns_per_conversation']:.1f}")
-        logger.info(f"Output file: {args.output_file}")
-        
+    except GenerationError as e:
+        logging.error(f"Generation failed: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Fatal error: {str(e)}", exc_info=True)
+        logging.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 

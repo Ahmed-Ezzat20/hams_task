@@ -1,12 +1,12 @@
 """
-EOU-Aware Prompt Builder Module
+CSV-Based Prompt Builder Module
 
-Uses few-shot prompting with explicit examples to generate balanced EOU datasets.
+Uses streamlined prompting to generate CSV format data directly.
 """
 
 import yaml
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Optional
 from dataclasses import dataclass
 
 
@@ -20,89 +20,96 @@ class PromptTemplate:
 
 
 class EOUAwarePromptBuilder:
-    """Builds prompts for EOU detection with few-shot examples."""
+    """Builds prompts for EOU detection with CSV output."""
     
-    # System prompt positioning LLM as synthetic data expert
-    SYSTEM_PROMPT = """You are a synthetic data expert specializing in Arabic conversational AI and End-of-Utterance (EOU) detection.
+    # System prompt for CSV-based generation
+    SYSTEM_PROMPT = """You are a synthetic data expert specializing in Arabic conversational AI, Saudi dialect generation, and End-of-Utterance (EOU) detection.  
+Your goal is to generate high-quality, non-redundant Saudi Arabic conversational samples — including ASR-like imperfect transcripts — with accurate binary EOU labels.  
+The data will train an EOU text-classification model for a voice agent.
 
-Your task is to generate realistic Saudi Arabic conversations with accurate EOU labels.
+# 1. OUTPUT FORMAT
+Produce data as **CSV-like lines** with **no header**, following this schema:
 
-IMPORTANT: Not every turn is a complete utterance!
-- is_eou: true = Speaker has finished their complete thought/turn
-- is_eou: false = Speaker is mid-utterance, incomplete, or will continue
+utterance,style,label
 
-Generate conversations with approximately 40% non-EOU turns (is_eou: false) to create a balanced dataset."""
+Where:
+- `utterance` = the user message
+- `style` = `informal` OR `formal` OR `asr_like`
+- `label` = `1` for end-of-utterance (EOU), `0` for not end-of-utterance
 
-    # Few-shot examples showing both EOU types
-    FEW_SHOT_EXAMPLES = """
-EXAMPLES OF EOU LABELING:
+**Important rules for formatting:**
+- Do NOT use commas in the utterance.
+- If needed, replace commas with: `—` `؛` `…` `-`
+- Output ONLY the CSV lines. No explanations.
 
-Example 1 - Restaurant Reservation:
-{
-  "turns": [
-    {"text": "السلام عليكم", "is_eou": true},
-    {"text": "وعليكم السلام، أهلاً", "is_eou": true},
-    {"text": "أبي أحجز طاولة", "is_eou": false},
-    {"text": "لأربعة أشخاص", "is_eou": false},
-    {"text": "يوم الخميس الساعة ثمانية", "is_eou": true},
-    {"text": "تمام، خلني أشيك", "is_eou": false},
-    {"text": "عندنا طاولة متاحة الساعة ثمانية ونص", "is_eou": true},
-    {"text": "ممتاز", "is_eou": false},
-    {"text": "أحجزها", "is_eou": true}
-  ]
-}
+---
 
-Example 2 - Bank Inquiry:
-{
-  "turns": [
-    {"text": "صباح الخير", "is_eou": true},
-    {"text": "صباح النور، كيف أقدر أساعدك؟", "is_eou": true},
-    {"text": "أبي أستفسر عن", "is_eou": false},
-    {"text": "رصيد حسابي", "is_eou": true},
-    {"text": "طبعاً، ممكن", "is_eou": false},
-    {"text": "رقم الحساب؟", "is_eou": true},
-    {"text": "الحساب رقم", "is_eou": false},
-    {"text": "١٢٣٤٥٦٧٨", "is_eou": true}
-  ]
-}
+# 2. STYLES TO GENERATE
 
-Example 3 - Real-world Incomplete Utterances:
-{
-  "turns": [
-    {"text": "طيب، بس لازم تتفق أول", "is_eou": false},
-    {"text": "هل تقدر توصلني بكرا؟", "is_eou": true},
-    {"text": "أنا حاولت، لكن ما فهمت الأرس", "is_eou": false},
-    {"text": "بس أنت ما قلت لي متى بدأ", "is_eou": false},
-    {"text": "شكراً، أكثر على المساعدة", "is_eou": true},
-    {"text": "طيب، تكمل بعدين؟", "is_eou": true},
-    {"text": "يعني أنا حب أنظر منك نرد على", "is_eou": false},
-    {"text": "أنا آسف إذا رأيتك", "is_eou": false},
-    {"text": "لا تنسى ترجع المفتاح بعدين", "is_eou": true},
-    {"text": "هذا الشيء ما توقعت بصير", "is_eou": true},
-    {"text": "هو قال لي أو لازم نتته", "is_eou": false},
-    {"text": "إيش رأيك نطلب بيتزا؟", "is_eou": true},
-    {"text": "أصلاً ما كان المفروض نجي", "is_eou": false},
-    {"text": "طيب، تكمل الحين ولا بعدين؟", "is_eou": true},
-    {"text": "أنا ما أقدر أقول لحالي", "is_eou": false},
-    {"text": "والله ما كنت أقصد", "is_eou": false}
-  ]
-}
+## A. Informal
+Use natural Saudi Najdi slang + common Gulf phrasing.  
+Casual, spontaneous, spoken tone.
 
-KEY PATTERNS FOR is_eou: false:
-- Incomplete sentences: "أبي أحجز..." "أنا حاولت، لكن ما فهمت..."
-- Mid-thought pauses: "خلني أشيك..." "طيب، بس لازم تتفق أول..."
-- Partial information: "الحساب رقم..." "بس أنت ما قلت لي متى..."
-- Hesitations: "يعني..." "أصلاً ما كان المفروض..."
-- Continuations: "وكمان..." "هو قال لي أو لازم..."
-- Unfinished thoughts: "أنا ما أقدر أقول لحالي" "والله ما كنت أقصد"
+## B. Formal
+Use MSA-infused Saudi phrasing.  
+Polite, professional, service-oriented style.
 
-KEY PATTERNS FOR is_eou: true:
-- Complete greetings: "السلام عليكم"
-- Complete questions: "كيف أقدر أساعدك؟"
-- Complete statements: "ممتاز، أحجزها"
-- Confirmations: "تمام" "طبعاً"
-- Complete information: "يوم الخميس الساعة ثمانية"
-"""
+## C. ASR-Like (voice transcript style)
+Simulate typical ASR imperfections while keeping the meaning understandable:
+- Light vowel/hamza drops: "ابي" → "أبي", "هذي الاشياء" → "هذي الاشيا"
+- Occasional character swaps: "متى" → "مته"
+- Word merges/splits: "على طول" → "علطول"
+- Minor omissions: "وش سالفة" → "سالفة"
+- Occasional extra pauses like "…"
+
+**Avoid:**
+- Heavy corruption
+- Nonsense text
+- Foreign filler noise ("um", "uh")
+- Timestamps or tags
+ASR-like text must stay readable and semantically meaningful.
+
+---
+
+# 3. EOU LABELING RULES
+Assign:
+- **1 (EOU)** → message is complete
+- **0 (Not EOU)** → trailing, incomplete, suggests more to come
+
+Examples:
+- "طيب متى يوصل الطلب؟" → 1  
+- "كنت بقولك شي بس…" → 0  
+- "هاليومين بوصل المستندات لكم" → 1  
+- "ترى كنت بفهمك نقطه بس لسه…" → 0  
+
+---
+
+# 4. GENERATION CONSTRAINTS
+- Generate **as many samples as possible** per batch.
+- Ensure **zero repetition** across lines.
+- NO hallucinated metadata (no IDs, no explanations).
+- Vary:
+  - style (informal / formal / asr_like)
+  - topics (daily life, work, appointments, deliveries, telecom, bank, shopping, tech support, social chat)
+  - lengths (short, medium, long)
+- Avoid real personal names or brands (use generic references like "المحل", "الشركة").
+
+---
+
+# 5. OUTPUT EXAMPLE (STRUCTURE REFERENCE ONLY — DO NOT REPEAT)
+
+وش وضع الاجتماع اليوم؟,informal,1  
+لحظه بخليك مع المدير… ,formal,0  
+تقدر تتأكد من الطلبيه لو سمحت؟,formal,1  
+انا كنت افكر نروح بكرا… ,informal,0  
+ابي اعرف ليه الطلب تاخر مره,asr_like,1  
+كنت بسأل عن عرض الانترنت الجديد… ,asr_like,0  
+
+---
+
+# 6. START GENERATING NOW
+Begin generating a large batch of **new**, **diverse**, **high-quality** samples.  
+Output ONLY the CSV-like lines — nothing else."""
 
     def __init__(self, prompts_file: Optional[str] = None):
         """
@@ -135,92 +142,52 @@ KEY PATTERNS FOR is_eou: true:
         
         return templates
     
-    def build_eou_aware_prompt(
+    def build_csv_prompt(
         self,
         template: PromptTemplate,
-        style: str = "clean",
-        num_turns: int = 10,
-        target_non_eou_ratio: float = 0.4
+        target_samples: int = 50
     ) -> str:
         """
-        Build an EOU-aware conversation generation prompt with few-shot examples.
+        Build a CSV generation prompt.
         
         Args:
             template: The prompt template to use
-            style: "clean" for standard output, "asr_like" for ASR-style output
-            num_turns: Target number of turns in the conversation
-            target_non_eou_ratio: Target ratio of non-EOU turns (default: 0.4 = 40%)
+            target_samples: Target number of samples to generate
         
         Returns:
-            Formatted prompt string with system prompt and few-shot examples
+            Formatted prompt string for CSV generation
         """
-        target_non_eou_count = int(num_turns * target_non_eou_ratio)
-        target_eou_count = num_turns - target_non_eou_count
-        
-        prompt = f"""{self.SYSTEM_PROMPT}
+        prompt = f"""Generate {target_samples} diverse Saudi Arabic EOU samples for the following scenario:
 
-{self.FEW_SHOT_EXAMPLES}
-
-NOW GENERATE A NEW CONVERSATION:
-
-SCENARIO:
-{template.scenario}
+DOMAIN: {template.domain}
+SCENARIO: {template.scenario}
 
 REQUIREMENTS:
-- Language: Saudi Arabic dialect
-- Total turns: {num_turns} turns
-- Target EOU distribution:
-  * is_eou: true → {target_eou_count} turns (~{int((1-target_non_eou_ratio)*100)}%)
-  * is_eou: false → {target_non_eou_count} turns (~{int(target_non_eou_ratio*100)}%)
-- Natural conversational flow
-- Realistic incomplete utterances"""
+- Generate exactly {target_samples} CSV lines
+- Mix of informal, formal, and asr_like styles
+- Approximately 40% with label=0 (incomplete utterances)
+- Approximately 60% with label=1 (complete utterances)
+- Vary topics within the {template.domain} domain
+- NO repetition
+- NO explanations
 
-        if style == "asr_like":
-            prompt += """
-- Style: ASR-like output (simulate automatic speech recognition)
-  * Minimal punctuation
-  * Some word repetitions
-  * Natural fillers (آه، يعني، خلاص)
-  * Lowercase where appropriate"""
-        else:  # clean
-            prompt += """
-- Style: Clean conversational text
-  * Proper punctuation
-  * Natural hesitations and fillers
-  * Clear and readable"""
-        
-        prompt += f"""
+OUTPUT FORMAT:
+utterance,style,label
 
-OUTPUT FORMAT (JSON only, no markdown):
-{{
-  "conversation_id": "conv_{template.id}",
-  "domain": "{template.domain}",
-  "turns": [
-    {{"text": "...", "is_eou": true}},
-    {{"text": "...", "is_eou": false}},
-    ...
-  ]
-}}
-
-CRITICAL: Include approximately {target_non_eou_count} turns with is_eou: false (incomplete utterances).
-Return ONLY valid JSON. No markdown code blocks."""
+Generate {target_samples} lines now:"""
         
         return prompt
     
-    def get_all_eou_aware_prompts(
+    def get_all_csv_prompts(
         self,
-        style: str = "clean",
-        num_turns: int = 10,
-        target_non_eou_ratio: float = 0.4,
+        target_samples_per_domain: int = 50,
         domains: Optional[List[str]] = None
     ) -> List[str]:
         """
-        Get all EOU-aware prompts, optionally filtered by domain.
+        Get all CSV generation prompts, optionally filtered by domain.
         
         Args:
-            style: "clean" or "asr_like"
-            num_turns: Target number of turns
-            target_non_eou_ratio: Target ratio of non-EOU turns
+            target_samples_per_domain: Target number of samples per domain
             domains: List of domains to include (None = all domains)
         
         Returns:
@@ -232,7 +199,7 @@ Return ONLY valid JSON. No markdown code blocks."""
             templates = [t for t in templates if t.domain in domains]
         
         return [
-            self.build_eou_aware_prompt(t, style, num_turns, target_non_eou_ratio)
+            self.build_csv_prompt(t, target_samples_per_domain)
             for t in templates
         ]
     
