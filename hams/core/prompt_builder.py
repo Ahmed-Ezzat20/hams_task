@@ -13,6 +13,7 @@ from dataclasses import dataclass
 @dataclass
 class PromptTemplate:
     """Represents a conversation prompt template."""
+
     id: str
     domain: str
     description: str
@@ -21,7 +22,7 @@ class PromptTemplate:
 
 class EOUAwarePromptBuilder:
     """Builds prompts for EOU detection with CSV output."""
-    
+
     # System prompt for CSV-based generation
     SYSTEM_PROMPT = """You are a synthetic data expert specializing in Arabic conversational AI, Saudi dialect generation, and End-of-Utterance (EOU) detection.  
 Your goal is to generate high-quality, non-redundant Saudi Arabic conversational samples — including ASR-like imperfect transcripts — with accurate binary EOU labels.  
@@ -131,46 +132,44 @@ Output ONLY the CSV-like lines — nothing else."""
     def __init__(self, prompts_file: Optional[str] = None):
         """
         Initialize the EOU-aware prompt builder.
-        
+
         Args:
             prompts_file: Path to YAML file containing prompts.
                          If None, uses default prompts.yaml in package.
         """
         if prompts_file is None:
             prompts_file = Path(__file__).parent.parent / "prompts.yaml"
-        
+
         self.prompts_file = Path(prompts_file)
         self.templates = self._load_templates()
-    
+
     def _load_templates(self) -> List[PromptTemplate]:
         """Load prompt templates from YAML file."""
-        with open(self.prompts_file, 'r', encoding='utf-8') as f:
+        with open(self.prompts_file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
-        
+
         templates = []
-        for prompt_data in data.get('prompts', []):
+        for prompt_data in data.get("prompts", []):
             template = PromptTemplate(
-                id=prompt_data['id'],
-                domain=prompt_data['domain'],
-                description=prompt_data['description'],
-                scenario=prompt_data['scenario']
+                id=prompt_data["id"],
+                domain=prompt_data["domain"],
+                description=prompt_data["description"],
+                scenario=prompt_data["scenario"],
             )
             templates.append(template)
-        
+
         return templates
-    
+
     def build_csv_prompt(
-        self,
-        template: PromptTemplate,
-        target_samples: int = 50
+        self, template: PromptTemplate, target_samples: int = 50
     ) -> str:
         """
         Build a CSV generation prompt.
-        
+
         Args:
             template: The prompt template to use
             target_samples: Target number of samples to generate
-        
+
         Returns:
             Formatted prompt string for CSV generation
         """
@@ -192,34 +191,29 @@ OUTPUT FORMAT:
 utterance,style,label
 
 Generate {target_samples} lines now:"""
-        
+
         return prompt
-    
+
     def get_all_csv_prompts(
-        self,
-        target_samples_per_domain: int = 50,
-        domains: Optional[List[str]] = None
+        self, target_samples_per_domain: int = 50, domains: Optional[List[str]] = None
     ) -> List[str]:
         """
         Get all CSV generation prompts, optionally filtered by domain.
-        
+
         Args:
             target_samples_per_domain: Target number of samples per domain
             domains: List of domains to include (None = all domains)
-        
+
         Returns:
             List of formatted prompt strings
         """
         templates = self.templates
-        
+
         if domains:
             templates = [t for t in templates if t.domain in domains]
-        
-        return [
-            self.build_csv_prompt(t, target_samples_per_domain)
-            for t in templates
-        ]
-    
+
+        return [self.build_csv_prompt(t, target_samples_per_domain) for t in templates]
+
     def get_system_message(self) -> str:
         """Get the system message for the LLM."""
         return self.SYSTEM_PROMPT
