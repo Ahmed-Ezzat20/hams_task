@@ -134,7 +134,6 @@ class ModelQuantizer:
                 model_input=self.model_path,
                 model_output=self.output_path,
                 weight_type=QuantType.QInt8,
-                optimize_model=True,
             )
             
             logger.info("✓ Quantization complete")
