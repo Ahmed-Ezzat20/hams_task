@@ -381,8 +381,52 @@ class ArabicTurnDetector:
             unlikely_threshold=unlikely_threshold
         )
         
+        # Store threshold for protocol methods
+        self._unlikely_threshold = unlikely_threshold
+        
         # Initialize the model
         self._runner.initialize()
+    
+    def unlikely_threshold(self, language: str | None = None) -> float | None:
+        """
+        Return the threshold below which EOU is unlikely for the given language.
+        Returns None if the language is not supported.
+        
+        This method is required by the LiveKit agents framework Protocol.
+        
+        Args:
+            language: Language code (e.g., "ar", "ara", "ar-SA") or None
+            
+        Returns:
+            Threshold value for supported languages (Arabic), None otherwise
+        """
+        if language is None:
+            # Default to Arabic support
+            return self._unlikely_threshold
+        
+        # Handle language codes (e.g., "ara", "ar", "ar-SA")
+        lang_code = language.lower().split("-")[0]
+        
+        # Check if it's Arabic
+        if lang_code in ("ar", "ara", "arabic"):
+            return self._unlikely_threshold
+        
+        # Language not supported
+        return None
+    
+    def supports_language(self, language: str | None = None) -> bool:
+        """
+        Check if this turn detector supports the given language.
+        
+        This method is required by the LiveKit agents framework Protocol.
+        
+        Args:
+            language: Language code (e.g., "ar", "ara", "ar-SA") or None
+            
+        Returns:
+            True if the language is supported (Arabic), False otherwise
+        """
+        return self.unlikely_threshold(language) is not None
     
     async def detect_turn(self, chat_ctx: list[dict[str, Any]]) -> bool:
         """
