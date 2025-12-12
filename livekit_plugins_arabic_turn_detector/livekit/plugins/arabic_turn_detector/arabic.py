@@ -386,6 +386,12 @@ class ArabicTurnDetector:
         
         # Initialize the model
         self._runner.initialize()
+
+        # Expose metadata attributes expected by LiveKit
+        # Name of the underlying model (for logging / analytics)
+        self.model: str = _EOURunnerAr.HG_MODEL
+        # Provider string to indicate a custom third-party detector
+        self.provider: str = "arabic_turn_detector"
     
     def unlikely_threshold(self, language: str | None = None) -> float | None:
         """
@@ -414,15 +420,15 @@ class ArabicTurnDetector:
         # Language not supported
         return None
     
-    def supports_language(self, language: str | None = None) -> bool:
+    async def supports_language(self, language: str | None = None) -> bool:
         """
-        Check if this turn detector supports the given language.
-        
-        This method is required by the LiveKit agents framework Protocol.
-        
+        Asynchronously check if this turn detector supports the given language.
+
+        This method is required by the LiveKit Agents framework Protocol.
+
         Args:
             language: Language code (e.g., "ar", "ara", "ar-SA") or None
-            
+
         Returns:
             True if the language is supported (Arabic), False otherwise
         """

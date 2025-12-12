@@ -45,7 +45,9 @@ from livekit.agents import (
 from livekit.plugins import noise_cancellation, silero, elevenlabs, google
 
 # Import custom Arabic turn detector
-from livekit.plugins.arabic_turn_detector import ArabicTurnDetector
+from livekit_plugins_arabic_turn_detector.livekit.plugins.arabic_turn_detector import (
+    ArabicTurnDetector,
+)
 
 logger = logging.getLogger("agent")
 
@@ -56,14 +58,14 @@ load_dotenv(".env.local")
 class ArabicAssistant(Agent):
     """
     Arabic Voice AI Assistant with custom turn detection
-    
+
     This assistant is optimized for Arabic conversations with:
     - Custom Arabic EOU turn detection
     - Arabic STT (Speech-to-Text)
     - Multilingual LLM (Gemini)
     - High-quality TTS
     """
-    
+
     def __init__(self) -> None:
         super().__init__(
             instructions="""أنت مساعد صوتي ذكي باللغة العربية. المستخدم يتفاعل معك عبر الصوت.
@@ -83,17 +85,17 @@ server = AgentServer()
 def prewarm(proc: JobProcess):
     """
     Prewarm function to load models before agent starts
-    
+
     This loads:
     - VAD (Voice Activity Detection) model
     - Arabic EOU turn detection model (if path provided)
     """
     logger.info("Prewarming models...")
-    
+
     # Load VAD model
     proc.userdata["vad"] = silero.VAD.load()
     logger.info("✓ VAD model loaded")
-    
+
     # Load Arabic turn detector if model path is provided
     model_path = os.getenv("ARABIC_EOU_MODEL_PATH")
     if model_path and Path(model_path).exists():
@@ -120,7 +122,7 @@ server.setup_fnc = prewarm
 async def arabic_agent(ctx: JobContext):
     """
     Main agent function with Arabic turn detection
-    
+
     This creates an agent session with:
     - Arabic STT (ElevenLabs with Arabic support)
     - Gemini LLM (multilingual)
@@ -130,19 +132,20 @@ async def arabic_agent(ctx: JobContext):
     - Noise cancellation
     """
     ctx.log_context_fields = {"room": ctx.room.name}
-    
+
     # Get Arabic turn detector from userdata (loaded in prewarm)
     arabic_turn_detector = ctx.proc.userdata.get("arabic_turn_detector")
-    
+
     # Fallback to default if Arabic detector not available
     if arabic_turn_detector is None:
         logger.warning("Using default turn detector (Arabic detector not available)")
         from livekit.plugins.turn_detector.multilingual import MultilingualModel
+
         turn_detector = MultilingualModel()
     else:
         logger.info("Using custom Arabic turn detector")
         turn_detector = arabic_turn_detector
-    
+
     # Create agent session
     session = AgentSession(
         # STT: ElevenLabs with Arabic support
@@ -151,28 +154,22 @@ async def arabic_agent(ctx: JobContext):
             language_code="ar",  # Arabic language code
             use_realtime=False,  # Set to False to avoid connection issues
         ),
-        
         # LLM: Google Gemini (supports Arabic)
         llm=google.LLM(
             model="models/gemini-2.5-flash-lite",
         ),
-        
         # TTS: Cartesia Sonic (high quality)
         tts=inference.TTS(
-            model="cartesia/sonic-3",
-            voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"
+            model="cartesia/sonic-3", voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"
         ),
-        
         # Turn Detection: Custom Arabic EOU detector
         turn_detection=turn_detector,
-        
         # VAD: Voice Activity Detection
         vad=ctx.proc.userdata["vad"],
-        
         # Enable preemptive generation for faster responses
         preemptive_generation=True,
     )
-    
+
     # Start the session
     await session.start(
         agent=ArabicAssistant(),
@@ -181,16 +178,17 @@ async def arabic_agent(ctx: JobContext):
             audio_input=room_io.AudioInputOptions(
                 noise_cancellation=lambda params: (
                     noise_cancellation.BVCTelephony()
-                    if params.participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
+                    if params.participant.kind
+                    == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
                     else noise_cancellation.BVC()
                 ),
             ),
         ),
     )
-    
+
     # Connect to the room
     await ctx.connect()
-    
+
     logger.info(f"Agent connected to room: {ctx.room.name}")
 
 
