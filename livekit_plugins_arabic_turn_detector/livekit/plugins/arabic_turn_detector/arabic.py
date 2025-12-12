@@ -17,7 +17,6 @@ from typing import Any
 
 import numpy as np
 import onnxruntime as ort
-from livekit.agents import Plugin
 from livekit.agents.inference_runner import _InferenceRunner
 
 try:

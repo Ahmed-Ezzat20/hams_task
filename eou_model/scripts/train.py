@@ -14,12 +14,8 @@ import argparse
 import json
 import logging
 import os
-import sys
-from pathlib import Path
-from typing import Dict, Any
 
 import numpy as np
-import torch
 from datasets import load_dataset
 from transformers import (
     AutoTokenizer,
@@ -27,7 +23,6 @@ from transformers import (
     TrainingArguments,
     Trainer,
 )
-from transformers import TrainingArguments, Trainer
 from arabert.preprocess import ArabertPreprocessor
 from sklearn.metrics import classification_report, confusion_matrix
 import evaluate
@@ -107,13 +102,13 @@ class EOUModelTrainer:
         try:
             # Load dataset from HuggingFace Hub
             self.dataset = load_dataset(self.dataset_name)
-            logger.info(f"✓ Dataset loaded from HuggingFace Hub")
+            logger.info("✓ Dataset loaded from HuggingFace Hub")
         except Exception as e:
             logger.error(f"Failed to load dataset: {e}")
             logger.info("Attempting to load from local path...")
             try:
                 self.dataset = load_dataset(self.dataset_name)
-                logger.info(f"✓ Dataset loaded from local path")
+                logger.info("✓ Dataset loaded from local path")
             except Exception as e2:
                 logger.error(f"Failed to load dataset from local path: {e2}")
                 raise

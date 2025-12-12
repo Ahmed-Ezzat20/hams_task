@@ -5,9 +5,6 @@ Analyzes the generated Arabic EOU dataset for quality metrics.
 """
 
 import pandas as pd
-import numpy as np
-from collections import Counter
-import re
 
 def analyze_dataset(csv_file):
     """Perform comprehensive analysis of the dataset."""
@@ -93,7 +90,7 @@ def analyze_dataset(csv_file):
     
     # Top 20 most common last words
     top_last_words = df['last_word'].value_counts().head(20)
-    print(f"  Top 20 most common last words:")
+    print("  Top 20 most common last words:")
     for word, count in top_last_words.items():
         percentage = count / len(df) * 100
         print(f"    {word:20s}: {count:4d} ({percentage:.2f}%)")
@@ -123,7 +120,7 @@ def analyze_dataset(csv_file):
     if ellipsis_count > 0:
         print(f"  ⚠️  WARNING: Found {ellipsis_count} utterances with ellipsis (should be 0)")
     else:
-        print(f"  ✅ No ellipsis bias detected")
+        print("  ✅ No ellipsis bias detected")
     print()
     
     # Sample Distribution by Label
@@ -154,7 +151,7 @@ def analyze_dataset(csv_file):
     print(f"  Duplicate score:      {duplicate_score:.1f}/100 (lower is better)")
     print(f"  Diversity score:      {diversity_score:.1f}/100 (unique last words)")
     print(f"  Ellipsis bias score:  {ellipsis_score:.1f}/100 (should be 100)")
-    print(f"  " + "="*60)
+    print("  " + "="*60)
     print(f"  OVERALL QUALITY:      {overall_score:.1f}/100")
     print()
     

@@ -10,7 +10,6 @@ import os
 import sys
 from pathlib import Path
 
-from ..core.prompt_builder import EOUAwarePromptBuilder
 from ..core.generator import ConversationGenerator, GenerationError
 from ..core.csv_writer import CSVWriter
 

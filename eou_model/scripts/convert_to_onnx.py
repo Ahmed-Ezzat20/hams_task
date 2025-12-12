@@ -12,7 +12,6 @@ Usage:
 import argparse
 import logging
 import os
-from pathlib import Path
 
 import numpy as np
 import onnx
@@ -55,7 +54,7 @@ class ONNXConverter:
         self.model = None
         self.tokenizer = None
         
-        logger.info(f"Initialized ONNXConverter")
+        logger.info("Initialized ONNXConverter")
         logger.info(f"  Model path: {model_path}")
         logger.info(f"  Output path: {output_path}")
         logger.info(f"  Opset version: {opset_version}")
@@ -79,7 +78,7 @@ class ONNXConverter:
             logger.info(f"✓ Tokenizer loaded: {type(self.tokenizer).__name__}")
             
             # Print model info
-            logger.info(f"  Model config:")
+            logger.info("  Model config:")
             logger.info(f"    - Hidden size: {self.model.config.hidden_size}")
             logger.info(f"    - Number of labels: {self.model.config.num_labels}")
             logger.info(f"    - Vocab size: {self.model.config.vocab_size}")
@@ -110,7 +109,7 @@ class ONNXConverter:
             return_tensors="pt"
         )
         
-        logger.info(f"✓ Dummy input created")
+        logger.info("✓ Dummy input created")
         logger.info(f"  Input IDs shape: {inputs['input_ids'].shape}")
         logger.info(f"  Attention mask shape: {inputs['attention_mask'].shape}")
         
@@ -160,7 +159,7 @@ class ONNXConverter:
                 export_params=True,
             )
             
-            logger.info(f"✓ Model exported to ONNX format")
+            logger.info("✓ Model exported to ONNX format")
             
             # Get file size
             file_size_mb = os.path.getsize(self.output_path) / (1024 * 1024)
@@ -185,7 +184,7 @@ class ONNXConverter:
             logger.info("✓ ONNX model is valid")
             
             # Print model info
-            logger.info(f"  Model info:")
+            logger.info("  Model info:")
             logger.info(f"    - IR version: {onnx_model.ir_version}")
             logger.info(f"    - Producer: {onnx_model.producer_name}")
             logger.info(f"    - Opset version: {onnx_model.opset_import[0].version}")

@@ -104,10 +104,10 @@ class CSVWriter:
         print("DATASET STATISTICS")
         print("="*50)
         print(f"Total samples: {stats['total']}")
-        print(f"\nEOU Distribution:")
+        print("\nEOU Distribution:")
         print(f"  EOU (label=1):     {stats['eou_count']:4d} ({stats['eou_percentage']:.1f}%)")
         print(f"  Non-EOU (label=0): {stats['non_eou_count']:4d} ({stats['non_eou_percentage']:.1f}%)")
-        print(f"\nStyle Distribution:")
+        print("\nStyle Distribution:")
         for style, count in stats['style_distribution'].items():
             percentage = (count / stats['total']) * 100
             print(f"  {style:12s}: {count:4d} ({percentage:.1f}%)")

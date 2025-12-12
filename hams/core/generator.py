@@ -8,7 +8,7 @@ import csv
 import io
 import logging
 import time
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from openai import OpenAI
 from .prompt_builder import EOUAwarePromptBuilder
 

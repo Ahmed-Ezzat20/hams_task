@@ -92,13 +92,13 @@ class HuggingFaceUploader:
         if self.onnx_model_path and self.onnx_model_path.exists():
             logger.info("Copying ONNX model...")
             shutil.copy2(self.onnx_model_path, self.temp_dir / "model.onnx")
-            logger.info(f"  ✓ model.onnx")
+            logger.info("  ✓ model.onnx")
         
         # Copy quantized ONNX model if provided
         if self.quantized_model_path and self.quantized_model_path.exists():
             logger.info("Copying quantized ONNX model...")
             shutil.copy2(self.quantized_model_path, self.temp_dir / "model_quantized.onnx")
-            logger.info(f"  ✓ model_quantized.onnx")
+            logger.info("  ✓ model_quantized.onnx")
         
         logger.info(f"\n✓ Files prepared in {self.temp_dir}")
     
@@ -442,9 +442,9 @@ For issues or questions, please open an issue on the [GitHub repository](https:/
             # Create model card
             self.create_model_card()
             
-            # Create repository
-            repo_url = self.create_repository()
-            
+            # Create repository and upload files
+            self.create_repository()
+
             # Upload files
             self.upload_files()
             
@@ -456,8 +456,8 @@ For issues or questions, please open an issue on the [GitHub repository](https:/
             logger.info("✓ Upload Complete!")
             logger.info("="*70)
             logger.info(f"Model URL: https://huggingface.co/{self.repo_name}")
-            logger.info(f"\nTo use your model:")
-            logger.info(f'  from transformers import AutoTokenizer, AutoModelForSequenceClassification')
+            logger.info("\nTo use your model:")
+            logger.info('  from transformers import AutoTokenizer, AutoModelForSequenceClassification')
             logger.info(f'  tokenizer = AutoTokenizer.from_pretrained("{self.repo_name}")')
             logger.info(f'  model = AutoModelForSequenceClassification.from_pretrained("{self.repo_name}")')
             

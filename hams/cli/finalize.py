@@ -124,7 +124,7 @@ def main():
             elif args.format == 'conversation_level':
                 num_rows = exporter.export_conversation_level(conversations)
             
-            logger.info(f"\n=== Export Complete ===")
+            logger.info("\n=== Export Complete ===")
             logger.info(f"Output file: {output_file}")
             logger.info(f"Rows written: {num_rows}")
         

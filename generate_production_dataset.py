@@ -91,10 +91,10 @@ def print_statistics(csv_file):
     print("DATASET STATISTICS")
     print("="*60)
     print(f"Total samples: {total}")
-    print(f"\nLabel Distribution:")
+    print("\nLabel Distribution:")
     print(f"  EOU (label=1):     {eou_count:5d} ({eou_count/total*100:.1f}%)")
     print(f"  Non-EOU (label=0): {non_eou_count:5d} ({non_eou_count/total*100:.1f}%)")
-    print(f"\nStyle Distribution:")
+    print("\nStyle Distribution:")
     for style, count in sorted(styles.items()):
         print(f"  {style:12s}: {count:5d} ({count/total*100:.1f}%)")
     print("="*60 + "\n")

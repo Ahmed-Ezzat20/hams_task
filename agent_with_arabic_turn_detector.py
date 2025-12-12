@@ -79,6 +79,7 @@ You are friendly, professional, and helpful.""",
         )
 
 
+# Increase proc initialization timeout (default is 10 s) to allow model downloads / heavy loads
 server = AgentServer()
 
 

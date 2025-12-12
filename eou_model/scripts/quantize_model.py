@@ -12,7 +12,6 @@ Usage:
 import argparse
 import logging
 import os
-from pathlib import Path
 
 import numpy as np
 import onnx
@@ -54,7 +53,7 @@ class ModelQuantizer:
         
         self.tokenizer = None
         
-        logger.info(f"Initialized ModelQuantizer")
+        logger.info("Initialized ModelQuantizer")
         logger.info(f"  Model path: {model_path}")
         logger.info(f"  Output path: {output_path}")
     
@@ -109,7 +108,7 @@ class ModelQuantizer:
         
         # Get original model info
         original_info = self.get_model_info(self.model_path)
-        logger.info(f"Original model:")
+        logger.info("Original model:")
         logger.info(f"  File size: {original_info['file_size_mb']:.2f} MB")
         logger.info(f"  Total parameters: {original_info['total_params']:,}")
         logger.info(f"  IR version: {original_info['ir_version']}")
@@ -148,7 +147,7 @@ class ModelQuantizer:
         
         # Get quantized model info
         quantized_info = self.get_model_info(self.output_path)
-        logger.info(f"Quantized model:")
+        logger.info("Quantized model:")
         logger.info(f"  File size: {quantized_info['file_size_mb']:.2f} MB")
         logger.info(f"  Total parameters: {quantized_info['total_params']:,}")
         logger.info(f"  IR version: {quantized_info['ir_version']}")
@@ -238,7 +237,7 @@ class ModelQuantizer:
                 accuracy = (matches / len(test_texts)) * 100
                 avg_diff = total_diff / len(test_texts)
                 
-                logger.info(f"\n✓ Validation Results:")
+                logger.info("\n✓ Validation Results:")
                 logger.info(f"  Prediction accuracy: {accuracy:.1f}% ({matches}/{len(test_texts)})")
                 logger.info(f"  Average logits difference: {avg_diff:.6f}")
                 

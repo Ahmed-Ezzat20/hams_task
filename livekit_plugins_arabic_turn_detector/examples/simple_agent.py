@@ -16,12 +16,9 @@ Usage:
     python simple_agent.py
 """
 
-import asyncio
 import logging
 import os
-from pathlib import Path
 
-from livekit import rtc
 from livekit.agents import (
     AgentSession,
     JobContext,

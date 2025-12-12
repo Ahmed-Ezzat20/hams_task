@@ -111,13 +111,13 @@ def print_final_statistics(output_file):
     label_counts = df['label'].value_counts()
     eou_count = label_counts.get(1, 0)
     non_eou_count = label_counts.get(0, 0)
-    log(f"\nLabel Distribution:")
+    log("\nLabel Distribution:")
     log(f"  EOU (label=1): {eou_count} ({eou_count/len(df)*100:.1f}%)")
     log(f"  Non-EOU (label=0): {non_eou_count} ({non_eou_count/len(df)*100:.1f}%)")
     
     # Style distribution
     style_counts = df['style'].value_counts()
-    log(f"\nStyle Distribution:")
+    log("\nStyle Distribution:")
     for style, count in style_counts.items():
         log(f"  {style}: {count} ({count/len(df)*100:.1f}%)")
     

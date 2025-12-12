@@ -35,7 +35,7 @@ def split_dataset(
         total = len(samples)
         train_size = int(total * train_r)
         val_size = int(total * val_r)
-        test_size = total - train_size - val_size
+        _ = total - train_size - val_size
 
         train = samples[:train_size]
         val = samples[train_size : train_size + val_size]
@@ -91,10 +91,10 @@ def validate_split(split_name, data):
     print(f"{split_name.upper()} SPLIT STATISTICS")
     print("=" * 60)
     print(f"Total samples: {total}")
-    print(f"\nLabel Distribution:")
+    print("\nLabel Distribution:")
     print(f"  EOU (label=1):     {eou_count:5d} ({eou_count/total*100:.1f}%)")
     print(f"  Non-EOU (label=0): {non_eou_count:5d} ({non_eou_count/total*100:.1f}%)")
-    print(f"\nStyle Distribution:")
+    print("\nStyle Distribution:")
     for style, count in sorted(styles.items()):
         print(f"  {style:12s}: {count:5d} ({count/total*100:.1f}%)")
     print("=" * 60)

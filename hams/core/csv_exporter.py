@@ -6,7 +6,7 @@ Exports conversations to CSV format optimized for Hugging Face datasets.
 
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict
 from .writer import DatasetWriter
 from .postprocessor import Conversation
 
