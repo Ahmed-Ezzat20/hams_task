@@ -393,7 +393,7 @@ class ArabicTurnDetector:
         # Provider string to indicate a custom third-party detector
         self.provider: str = "arabic_turn_detector"
     
-    def unlikely_threshold(self, language: str | None = None) -> float | None:
+    async def unlikely_threshold(self, language: str | None = None) -> float | None:
         """
         Return the threshold below which EOU is unlikely for the given language.
         Returns None if the language is not supported.
@@ -432,7 +432,7 @@ class ArabicTurnDetector:
         Returns:
             True if the language is supported (Arabic), False otherwise
         """
-        return self.unlikely_threshold(language) is not None
+        return (await self.unlikely_threshold(language)) is not None
     
     async def detect_turn(self, chat_ctx: list[dict[str, Any]]) -> bool:
         """
@@ -457,18 +457,44 @@ class ArabicTurnDetector:
         result = json.loads(result_data)
         return result.get("is_eou", False)
     
+    async def predict_end_of_turn(self, chat_ctx: list[dict[str, Any]]) -> float:
+        """
+        Asynchronously predict the probability that the current turn has ended.
+
+        Args:
+            chat_ctx: List of chat messages with 'role' and 'content' keys.
+
+        Returns:
+            Probability (0.0–1.0) that the latest user utterance has ended.
+        """
+        return self.get_confidence(chat_ctx)
+
     def get_confidence(self, chat_ctx: list[dict[str, Any]]) -> float:
         """
         Get EOU confidence score
         
         Args:
-            chat_ctx: List of chat messages with 'role' and 'content' keys
-            
+            chat_ctx: List of chat messages with 'role' and 'content' keys or a LiveKit
+                ChatContext-like object.
+        
         Returns:
             Confidence score (0.0 to 1.0)
         """
+        # Convert LiveKit ChatContext → list[dict] if necessary
+        if not isinstance(chat_ctx, list):
+            try:
+                msgs = getattr(chat_ctx, "messages", [])
+                chat_ctx = [
+                    {"role": getattr(m, "role", "user"), "content": getattr(m, "content", "")}
+                    for m in msgs
+                    if getattr(m, "content", None)
+                ]
+            except Exception as e:
+                logger.error(f"Failed to serialise chat_ctx: {e}")
+                return 0.0
+
         # Prepare input
-        input_data = json.dumps({"chat_ctx": chat_ctx}).encode()
+        input_data = json.dumps({"chat_ctx": chat_ctx}, ensure_ascii=False).encode()
         
         # Run inference
         result_data = self._runner.run(input_data)
