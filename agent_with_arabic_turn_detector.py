@@ -30,6 +30,16 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from livekit import rtc
+
+# Configure logging to show DEBUG messages (required to see EOU probability logs)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S'
+)
+
+# Ensure Arabic turn detector logs are visible
+logging.getLogger('livekit.plugins.arabic_turn_detector').setLevel(logging.DEBUG)
 from livekit.agents import (
     Agent,
     AgentServer,
