@@ -443,8 +443,14 @@ class ArabicTurnDetector:
         Returns:
             True if end-of-utterance detected, False otherwise
         """
+        import time
+        start_time = time.time()
+        
         # Prepare input
         input_data = json.dumps({"chat_ctx": chat_ctx}).encode()
+        
+        # Format input for logging
+        formatted_input = self._runner._format_chat_ctx(chat_ctx)
         
         # Run inference
         result_data = self._runner.run(input_data)
@@ -454,7 +460,25 @@ class ArabicTurnDetector:
         
         # Parse result
         result = json.loads(result_data)
-        return result.get("is_eou", False)
+        is_eou = result.get("is_eou", False)
+        confidence = result.get("confidence", 0.0)
+        
+        # Calculate duration
+        duration = time.time() - start_time
+        
+        # Log EOU prediction (matching English turn detector format)
+        logger.debug(
+            "eou prediction",
+            extra={
+                "eou_probability": confidence,
+                "duration": round(duration, 3),
+                "input": formatted_input[:100],  # Truncate for readability
+                "is_eou": is_eou,
+                "threshold": self._unlikely_threshold
+            }
+        )
+        
+        return is_eou
     
     async def predict_end_of_turn(self, chat_ctx: list[dict[str, Any]]) -> float:
         """
