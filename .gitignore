@@ -18,3 +18,8 @@ wheels/
 data/
 .env.local
 .env
+
+*.safetensors
+*.onnx
+*.bin
+*.txt
