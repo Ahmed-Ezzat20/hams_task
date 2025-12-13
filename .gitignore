@@ -16,3 +16,5 @@ wheels/
 *.json
 *.csv
 data/
+.env.local
+.env
