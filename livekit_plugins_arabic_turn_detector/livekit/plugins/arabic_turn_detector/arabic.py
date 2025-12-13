@@ -275,26 +275,49 @@ class _EOURunnerAr(_InferenceRunner):
             data: JSON-encoded input data with 'chat_ctx' key
             
         Returns:
-            JSON-encoded prediction result
+            JSON-encoded prediction result with eou_probability, duration, input, is_eou, threshold
         """
+        import time
+        
         try:
             # Parse input
             data_json = json.loads(data)
             chat_ctx = data_json.get("chat_ctx", [])
             
             if not chat_ctx:
-                return json.dumps({"is_eou": False, "confidence": 0.0}).encode()
+                return json.dumps({
+                    "eou_probability": 0.0,
+                    "is_eou": False,
+                    "threshold": self.unlikely_threshold,
+                    "duration": 0.0,
+                    "input": ""
+                }).encode()
+            
+            # Start timing
+            start_time = time.perf_counter()
             
             # Format chat context
             text = self._format_chat_ctx(chat_ctx)
             
             if not text:
-                return json.dumps({"is_eou": False, "confidence": 0.0}).encode()
+                return json.dumps({
+                    "eou_probability": 0.0,
+                    "is_eou": False,
+                    "threshold": self.unlikely_threshold,
+                    "duration": 0.0,
+                    "input": ""
+                }).encode()
             
             # Tokenize
             if self._tokenizer is None:
                 logger.error("Tokenizer not available")
-                return json.dumps({"is_eou": False, "confidence": 0.0}).encode()
+                return json.dumps({
+                    "eou_probability": 0.0,
+                    "is_eou": False,
+                    "threshold": self.unlikely_threshold,
+                    "duration": 0.0,
+                    "input": text[:100]
+                }).encode()
             
             inputs = self._tokenizer(
                 text,
@@ -318,22 +341,42 @@ class _EOURunnerAr(_InferenceRunner):
             probs = np.exp(logits) / np.sum(np.exp(logits), axis=-1, keepdims=True)
             
             # EOU is class 1
-            confidence = float(probs[0, 1])
-            is_eou = confidence > self.unlikely_threshold
+            eou_probability = float(probs[0, 1])
+            is_eou = eou_probability > self.unlikely_threshold
+            
+            # End timing
+            end_time = time.perf_counter()
+            duration = end_time - start_time
+            
+            # Truncate input for logging
+            input_text = text[:100] if len(text) > 100 else text
             
             result = {
+                "eou_probability": eou_probability,
                 "is_eou": is_eou,
-                "confidence": confidence,
-                "threshold": self.unlikely_threshold
+                "threshold": self.unlikely_threshold,
+                "duration": round(duration, 3),
+                "input": input_text
             }
             
-            logger.debug(f"EOU prediction: {result}")
+            # Log with same format as LiveKit's EOUModel
+            logger.debug(
+                "eou prediction",
+                extra=result
+            )
             
             return json.dumps(result).encode()
             
         except Exception as e:
             logger.error(f"Error during EOU inference: {e}")
-            return json.dumps({"is_eou": False, "confidence": 0.0, "error": str(e)}).encode()
+            return json.dumps({
+                "eou_probability": 0.0,
+                "is_eou": False,
+                "threshold": self.unlikely_threshold,
+                "duration": 0.0,
+                "input": "",
+                "error": str(e)
+            }).encode()
 
 
 class ArabicTurnDetector:
