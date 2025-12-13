@@ -1,0 +1,21 @@
+# LiveKit Plugin Requirements
+
+# LiveKit
+livekit
+livekit-agents
+livekit-plugins-elevenlabs
+livekit-plugins-google
+livekit-plugins-cartesia
+livekit-plugins-silero
+
+# ONNX Runtime
+onnxruntime>=1.16.0
+
+# Transformers (for tokenizer)
+transformers>=4.30.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Logging
+coloredlogs>=15.0
