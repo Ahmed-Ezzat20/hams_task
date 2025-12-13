@@ -60,7 +60,7 @@ from livekit.plugins import elevenlabs, google, inference, silero
 
 # Initialize detector
 detector = ArabicEOUDetector(
-    model_path="../2_eou_model/eou_model_quantized.onnx",
+    model_path="../eou_model/eou_model_quantized.onnx",
     confidence_threshold=0.7
 )
 
@@ -135,7 +135,7 @@ User speaks → STT → Text → EOU Detector → Probability
 from arabic_turn_detector import ArabicEOUDetector
 from livekit.agents import ChatContext, ChatMessage
 
-detector = ArabicEOUDetector("../2_eou_model/eou_model_quantized.onnx")
+detector = ArabicEOUDetector("../eou_model/eou_model_quantized.onnx")
 
 # Test utterances
 test_cases = [
@@ -212,7 +212,7 @@ FileNotFoundError: eou_model_quantized.onnx not found
 **Solution:** Update `model_path` to correct location:
 ```python
 detector = ArabicEOUDetector(
-    model_path="../2_eou_model/eou_model_quantized.onnx"
+    model_path="../eou_model/eou_model_quantized.onnx"
 )
 ```
 
@@ -266,7 +266,7 @@ RUN pip install -r requirements.txt
 
 # Copy plugin and model
 COPY arabic_turn_detector.py .
-COPY ../2_eou_model/eou_model_quantized.onnx ./models/
+COPY ../eou_model/eou_model_quantized.onnx ./models/
 
 # Copy agent
 COPY agent.py .

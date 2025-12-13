@@ -136,4 +136,4 @@ WARNING - Skipping invalid row
 After generating the dataset:
 1. Review samples for quality
 2. Check label distribution (should be ~50/50)
-3. Proceed to `2_eou_model/` for training
+3. Proceed to `eou_model/` for training

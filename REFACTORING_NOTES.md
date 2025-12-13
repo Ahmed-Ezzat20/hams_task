@@ -65,12 +65,12 @@ arabic-eou-detection/
 ├── requirements.txt
 ├── .env.example
 │
-├── 1_data_prep/                       ← Clear step 1
+├── data_prep/                       ← Clear step 1
 │   ├── README.md
 │   ├── generate_dataset.py            ← Single script
 │   └── prompts.yaml
 │
-├── 2_eou_model/                       ← Clear step 2
+├── eou_model/                       ← Clear step 2
 │   ├── README.md
 │   ├── train.py                       ← Flat structure
 │   ├── convert_to_onnx.py
@@ -78,7 +78,7 @@ arabic-eou-detection/
 │   ├── upload_to_huggingface.py
 │   └── requirements.txt
 │
-├── 3_plugin/                          ← Clear step 3
+├── plugin/                          ← Clear step 3
 │   ├── README.md
 │   ├── arabic_turn_detector.py        ← Renamed for clarity
 │   ├── agent.py
@@ -100,7 +100,7 @@ arabic-eou-detection/
 
 ## Key Changes
 
-### 1. Data Preparation (hams/ → 1_data_prep/)
+### 1. Data Preparation (hams/ → data_prep/)
 
 **Old:**
 - Multiple modules: `cli/`, `core/`, `utils/`
@@ -125,14 +125,14 @@ from hams.cli.build_dataset import main
 python generate_dataset.py --num-samples 10000
 ```
 
-### 2. EOU Model (eou_model/scripts/ → 2_eou_model/)
+### 2. EOU Model (eou_model/scripts/ → eou_model/)
 
 **Old:**
 - Scripts in nested `scripts/` directory
 - Package structure with `__init__.py`
 
 **New:**
-- Scripts in root of `2_eou_model/`
+- Scripts in root of `eou_model/`
 - No package structure
 - Direct execution
 
@@ -142,11 +142,11 @@ python generate_dataset.py --num-samples 10000
 python eou_model/scripts/train.py
 
 # New
-cd 2_eou_model
+cd eou_model
 python train.py
 ```
 
-### 3. Plugin (root files → 3_plugin/)
+### 3. Plugin (root files → plugin/)
 
 **Old:**
 - `arabic_turn_detector_plugin.py` in root
@@ -154,7 +154,7 @@ python train.py
 - Mixed with other files
 
 **New:**
-- Dedicated `3_plugin/` directory
+- Dedicated `plugin/` directory
 - Renamed to `arabic_turn_detector.py` (clearer)
 - All plugin files together
 - Own requirements.txt
@@ -174,7 +174,7 @@ from arabic_turn_detector_plugin import ArabicEOUDetector
 #### New usage:
 ```python
 # For dataset generation
-cd 1_data_prep
+cd data_prep
 python generate_dataset.py --num-samples 10000
 
 # For plugin
@@ -238,14 +238,14 @@ git checkout <old-commit> # if needed
 
 | Old Location | New Location | Notes |
 |--------------|--------------|-------|
-| `hams/cli/build_dataset.py` | `1_data_prep/generate_dataset.py` | Consolidated |
-| `hams/core/generator.py` | `1_data_prep/generate_dataset.py` | Merged |
-| `hams/prompts.yaml` | `1_data_prep/prompts.yaml` | Moved |
-| `eou_model/scripts/train.py` | `2_eou_model/train.py` | Flattened |
-| `eou_model/scripts/convert_to_onnx.py` | `2_eou_model/convert_to_onnx.py` | Flattened |
-| `eou_model/scripts/quantize_model.py` | `2_eou_model/quantize_model.py` | Flattened |
-| `arabic_turn_detector_plugin.py` | `3_plugin/arabic_turn_detector.py` | Moved & renamed |
-| `agent.py` | `3_plugin/agent.py` | Moved |
+| `hams/cli/build_dataset.py` | `data_prep/generate_dataset.py` | Consolidated |
+| `hams/core/generator.py` | `data_prep/generate_dataset.py` | Merged |
+| `hams/prompts.yaml` | `data_prep/prompts.yaml` | Moved |
+| `eou_model/scripts/train.py` | `eou_model/train.py` | Flattened |
+| `eou_model/scripts/convert_to_onnx.py` | `eou_model/convert_to_onnx.py` | Flattened |
+| `eou_model/scripts/quantize_model.py` | `eou_model/quantize_model.py` | Flattened |
+| `arabic_turn_detector_plugin.py` | `plugin/arabic_turn_detector.py` | Moved & renamed |
+| `agent.py` | `plugin/agent.py` | Moved |
 | `HOW_TO_RUN.md` | `docs/HOW_TO_RUN.md` | Organized |
 | `USAGE_GUIDE.md` | `docs/USAGE_GUIDE.md` | Organized |
 

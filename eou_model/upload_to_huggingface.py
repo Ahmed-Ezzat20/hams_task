@@ -289,7 +289,7 @@ print(f"Is EOU: {is_eou}, Confidence: {conf:.4f}")
 ## Integration with LiveKit
 
 ```python
-from livekit.plugins.arabic_turn_detector import ArabicTurnDetector
+from arabic_turn_detector import ArabicEOUDetector
 
 # Download model from HuggingFace
 from huggingface_hub import hf_hub_download

@@ -6,9 +6,9 @@ Complete solution for detecting when Arabic speakers finish their utterances in 
 
 This project provides a simple, modular pipeline for Arabic EOU detection:
 
-1. **Dataset Generation** (`1_data_prep/`) - Generate Arabic conversational data
-2. **Model Training** (`2_eou_model/`) - Train and optimize EOU detection model  
-3. **LiveKit Plugin** (`3_plugin/`) - Deploy as voice agent
+1. **Dataset Generation** (`data_prep/`) - Generate Arabic conversational data
+2. **Model Training** (`eou_model/`) - Train and optimize EOU detection model  
+3. **LiveKit Plugin** (`plugin/`) - Deploy as voice agent
 
 **Performance:**
 - ✅ 90% accuracy, 0.92 F1-score
@@ -27,17 +27,17 @@ This project provides a simple, modular pipeline for Arabic EOU detection:
 ```
 arabic-eou-detection/
 │
-├── 1_data_prep/              # Generate dataset
+├── data_prep/              # Generate dataset
 │   ├── generate_dataset.py
 │   └── prompts.yaml
 │
-├── 2_eou_model/              # Train model
+├── eou_model/              # Train model
 │   ├── train.py
 │   ├── convert_to_onnx.py
 │   ├── quantize_model.py
 │   └── upload_to_huggingface.py
 │
-├── 3_plugin/                 # LiveKit plugin
+├── plugin/                 # LiveKit plugin
 │   ├── arabic_turn_detector.py
 │   └── agent.py
 │
@@ -55,7 +55,7 @@ arabic-eou-detection/
 ### Step 1: Generate Dataset
 
 ```bash
-cd 1_data_prep
+cd data_prep
 pip install openai pyyaml
 export OPENAI_API_KEY="your-key"
 
@@ -65,10 +65,10 @@ python generate_dataset.py --num-samples 10000 --split --output-dir ./data
 ### Step 2: Train Model
 
 ```bash
-cd ../2_eou_model
+cd ../eou_model
 pip install -r requirements.txt
 
-python train.py --train_file ../1_data_prep/data/train.csv --output_dir ./models
+python train.py --train_file ../data_prep/data/train.csv --output_dir ./models
 python convert_to_onnx.py --model_path ./models/eou_model
 python quantize_model.py --model_path ./models/eou_model.onnx
 ```
@@ -76,7 +76,7 @@ python quantize_model.py --model_path ./models/eou_model.onnx
 ### Step 3: Run Agent
 
 ```bash
-cd ../3_plugin
+cd ../plugin
 pip install -r requirements.txt
 
 # Configure .env.local with API keys
@@ -95,9 +95,9 @@ Open http://localhost:8081 and speak Arabic!
 - **Technical Report:** [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md)
 
 Each directory has its own README:
-- [1_data_prep/README.md](1_data_prep/README.md)
-- [2_eou_model/README.md](2_eou_model/README.md)
-- [3_plugin/README.md](3_plugin/README.md)
+- [data_prep/README.md](data_prep/README.md)
+- [eou_model/README.md](eou_model/README.md)
+- [plugin/README.md](plugin/README.md)
 
 ---
 

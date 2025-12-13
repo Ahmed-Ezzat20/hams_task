@@ -52,7 +52,7 @@ from livekit.agents import (
 from livekit.plugins import noise_cancellation, silero, elevenlabs, google
 
 # Import custom Arabic EOU detector plugin
-from arabic_turn_detector_plugin import ArabicEOUDetector
+from arabic_turn_detector import ArabicEOUDetector
 
 # Configure logging to show DEBUG messages (required to see EOU probability logs)
 logging.basicConfig(
